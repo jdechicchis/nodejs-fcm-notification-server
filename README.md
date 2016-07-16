@@ -14,25 +14,25 @@ The solution presented here is as follows:
 "recipientUID": 123...789,
 "time": timeStamp]
 ```
-Here `notificationKey` is the key created using `childByAutoId`. Any other information that is app specific can also be added to this dictionary. For example, and app with posts may add a `postID` key value pair.\\
+Here `notificationKey` is the key created using `childByAutoId`. Any other information that is app specific can also be added to this dictionary. For example, and app with posts may add a `postID` key value pair.  
 2. Once the client adds a new child child to **notifications/** this change it detected by the Node.js backend in the `child_added` callback.
-3. The new notification dictionary, `snapshot`, is passed to `handleNotificationSnapshot(snapshot)`.\\
+3. The new notification dictionary, `snapshot`, is passed to `handleNotificationSnapshot(snapshot)`.  
 4. `handleNotificationSnapshot` retrieves the notifications ids (tokens) of the recipient using their UID. The notification ids are stored in **notification_ids/recipientUID/** as an array of tokens like so:
 `[token1, token2, token 3]`
-FCM can handle up to 1000 tokens in one push notification request. (Number may need to be double checked because I've also read a load limit of 2K)\\
-5. The notification ids, message, notification key, and number of attempts are then passed into `sendNotification(notificationID, message, key, attempts)`.\\
-6. `sendNotification` uses an HTTP POST request to communicate with FCM to send the push notification.\\
+FCM can handle up to 1000 tokens in one push notification request. (Number may need to be double checked because I've also read a load limit of 2K)  
+5. The notification ids, message, notification key, and number of attempts are then passed into `sendNotification(notificationID, message, key, attempts)`.  
+6. `sendNotification` uses an HTTP POST request to communicate with FCM to send the push notification.  
 7. If the POST request return a 200 success code, the notification dictionary's `sent` value is changed to `true`, and `attempts` is incremented by one. Otherwise, `attempts` is incremented by one, and the change is detected in `child_changed` which calls `handleNotificationSnapshot`. The notification will not be sent after 10 failed attempts.
 
 # Deploying the Node.js backend
-This project is made to be deployed on [Heroku](https://www.heroku.com/), although it can be changed to work on any Node.js server.\\\\
+This project is made to be deployed on [Heroku](https://www.heroku.com/), although it can be changed to work on any Node.js server.  
 
-In addition to hosting the code, there are to Firebase credentials you need for this to work. First is a [service account](https://developers.google.com/identity/protocols/OAuth2ServiceAccount). Make sure to add the json service account file to the root directory of your project. **_Note that the service account grants administrative access to anyone who has it. Also, consider using a `databaseAuthVariableOverride` to ensure any code mistakes do not affect your entire database._** The other thing you need is your Firebase project's Server Key which can be found in Settings, -> Cloud Messaging.
+In addition to hosting the code, there are to Firebase credentials you need for this to work. First is a [service account](https://developers.google.com/identity/protocols/OAuth2ServiceAccount). Make sure to add the json service account file to the root directory of your project. **_Note that the service account grants administrative access to anyone who has it. Also, consider using a `databaseAuthVariableOverride` to ensure any code mistakes do not affect your entire database._** The other thing you need is your Firebase project's Server Key which can be found in Settings, -> Cloud Messaging.  
 
 When testing locally, make sure to run `npm install` to install all of the dependencies.
 
 # Saving notification ids (tokens)
-Follow the [Firebase documentation](https://firebase.google.com/docs/cloud-messaging/) to set up the client side.
+Follow the [Firebase documentation](https://firebase.google.com/docs/cloud-messaging/) to set up the client side.  
 
 The below swift code adds the devices token to the user's notification ids array.
 ```javascript
